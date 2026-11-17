@@ -1,0 +1,61 @@
+version: 3
+
+# relative directory for analyse the project structure
+workdir: internal
+
+allow:
+  # do not allow import any vendor code to any project file
+  depOnAnyVendor: false
+
+  # use advanced AST code analyse
+  deepScan: true
+
+  # do not ignore not found components
+  ignoreNotFoundComponents: false
+
+# regular expression rules for file names,
+# will exclude this files and it's packages from analyse
+excludeFiles:
+  - "^.*_test\\.go$"
+
+# component is abstraction on go packages.
+# One component = one or more go packages
+components:
+  domain:
+    in: domain/**
+  application:
+    in: application/**
+  infrastructure:
+    in: infrastructure/**
+
+#	vendor libs (go.mod)
+vendors:
+  uuid:
+    in: github.com/google/uuid
+  gorilla_mux:
+    in: github.com/gorilla/mux
+  go12f_common:
+    in: github.com/tombenke/go-12f-common/v2/**
+  pflag:
+    in: github.com/spf13/pflag
+  multierr:
+    in: go.uber.org/multierr
+
+# dependency rules
+deps:
+  application:
+    deepScan: false # Prevent to take dependency injection as dependency
+    mayDependOn:
+      - domain
+      - application
+  infrastructure:
+    mayDependOn:
+      - domain
+      - application
+      - infrastructure
+    canUse:
+      - uuid
+      - gorilla_mux
+      - go12f_common
+      - pflag
+      - multierr
